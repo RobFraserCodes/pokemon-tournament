@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Send } from "lucide-react"
+import Image from "next/image"
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 
@@ -40,6 +41,7 @@ export function TournamentSignupForm() {
   const [successPlayerName, setSuccessPlayerName] = useState<string | null>(
     null
   )
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
   const form = useForm<TournamentEntryInput>({
@@ -64,6 +66,7 @@ export function TournamentSignupForm() {
 
       if (result.ok) {
         setSuccessPlayerName(result.playerName)
+        setConfirmationEmailSent(result.confirmationEmailSent)
         form.reset()
         return
       }
@@ -91,7 +94,19 @@ export function TournamentSignupForm() {
           </p>
         </div>
 
-        <Card className="rounded-[2rem] border-4 border-slate-950 bg-white shadow-[8px_8px_0_#2563eb]">
+        <div className="grid items-center gap-6 lg:grid-cols-[auto_1fr]">
+          <div className="hidden justify-self-center lg:block">
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="h-auto w-48 xl:w-56"
+              height={512}
+              src="/bird.png"
+              width={512}
+            />
+          </div>
+
+          <Card className="rounded-[2rem] border-4 border-slate-950 bg-white shadow-[8px_8px_0_#2563eb]">
           <CardHeader>
             <CardTitle className="text-2xl font-black text-slate-950">
               Player registration
@@ -99,7 +114,10 @@ export function TournamentSignupForm() {
           </CardHeader>
           <CardContent>
             {successPlayerName ? (
-              <SuccessMessage playerName={successPlayerName} />
+              <SuccessMessage
+                confirmationEmailSent={confirmationEmailSent}
+                playerName={successPlayerName}
+              />
             ) : (
               <Form {...form}>
                 <form
@@ -274,6 +292,10 @@ export function TournamentSignupForm() {
                             >
                               Player has their own 60-card deck
                             </FormLabel>
+                            <FormDescription className="mt-2 text-sm leading-6 text-slate-700">
+                              A limited number of pre-made decks will be available
+                              on the day for players who do not have their own.
+                            </FormDescription>
                             <FormMessage name="hasOwnDeck" />
                           </div>
                         </div>
@@ -353,6 +375,7 @@ export function TournamentSignupForm() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
     </section>
   )

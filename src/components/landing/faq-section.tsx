@@ -1,8 +1,27 @@
-const faqs = [
+import type { ReactNode } from "react"
+
+const faqs: { question: string; answer: ReactNode }[] = [
   {
     question: "Do I need my own deck?",
     answer:
-      "Yes, players should bring a complete 60-card Pokemon TCG deck. If you are unsure whether a deck is suitable, bring it along and we can help check it.",
+      "If you can, players should bring a complete 60-card Pokemon TCG deck. If you are unsure whether a deck is suitable, bring it along and we can help check it. We will have a limited supply of decks available for those who don't have one.",
+  },
+  {
+    question: "What rules are used?",
+    answer: (
+      <>
+        Matches are played using the standard Pokemon TCG rules. The official{" "}
+        <a
+          className="font-bold text-pokemon-blue underline decoration-pokemon-blue/40 underline-offset-2 transition-colors hover:text-pokemon-red"
+          href="https://www.pokemon.com/static-assets/content-assets/cms2/pdf/trading-card-game/rulebook/par_rulebook_en.pdf"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Pokemon TCG rulebook
+        </a>{" "}
+        is a helpful reference if you want to read up before the day.
+      </>
+    ),
   },
   {
     question: "Is this suitable for beginners?",
@@ -17,7 +36,7 @@ const faqs = [
   {
     question: "What time does it finish?",
     answer:
-      "The event is planned to finish at 2:30 PM. We will email parents if final timings change after registrations close.",
+      "The event is planned to finish at 12:30 PM. We will email parents if final timings change after registrations close.",
   },
 ]
 

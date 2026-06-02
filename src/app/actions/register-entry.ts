@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
+import { sendRegistrationConfirmationEmail } from "@/lib/email/send-registration-confirmation"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import {
   tournamentEntrySchema,
@@ -12,6 +13,7 @@ export type RegisterEntryResult =
   | {
       ok: true
       playerName: string
+      confirmationEmailSent: boolean
     }
   | {
       ok: false
@@ -55,9 +57,12 @@ export async function registerTournamentEntry(
 
     revalidatePath("/")
 
+    const emailResult = await sendRegistrationConfirmationEmail(entry)
+
     return {
       ok: true,
       playerName: entry.playerName,
+      confirmationEmailSent: emailResult.ok,
     }
   } catch {
     return {
