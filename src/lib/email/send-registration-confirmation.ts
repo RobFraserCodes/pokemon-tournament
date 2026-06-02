@@ -39,7 +39,10 @@ function buildPlainTextEmail(
     `Player name: ${entry.playerName}`,
     `Player age: ${entry.playerAge}`,
     `Experience level: ${entry.experienceLevel}`,
+    `Favourite Pokemon type: ${entry.favouritePokemonType}`,
     `Own 60-card deck: ${entry.hasOwnDeck ? "Yes" : "No"}`,
+    `Public leaderboard: ${entry.showOnLeaderboard ? "Opted in" : "Opted out"}`,
+    `Leaderboard nickname: ${entry.showOnLeaderboard ? entry.leaderboardNickname : "Not shown"}`,
     `Parent / guardian: ${entry.parentName}`,
     `Parent email: ${entry.parentEmail}`,
     `Parent phone: ${formatOptional(entry.parentPhone)}`,
@@ -65,7 +68,13 @@ function buildHtmlEmail(entry: TournamentEntryInput, contactEmail: string) {
     ["Player name", entry.playerName],
     ["Player age", String(entry.playerAge)],
     ["Experience level", entry.experienceLevel],
+    ["Favourite Pokemon type", entry.favouritePokemonType],
     ["Own 60-card deck", entry.hasOwnDeck ? "Yes" : "No"],
+    ["Public leaderboard", entry.showOnLeaderboard ? "Opted in" : "Opted out"],
+    [
+      "Leaderboard nickname",
+      entry.showOnLeaderboard ? entry.leaderboardNickname : "Not shown",
+    ],
     ["Parent / guardian", entry.parentName],
     ["Parent email", entry.parentEmail],
     ["Parent phone", formatOptional(entry.parentPhone)],
@@ -120,7 +129,7 @@ export async function sendRegistrationConfirmationEmail(
     return { ok: false, reason: "Email is not configured." }
   }
 
-  const url = "api.zeptomail.com/"
+  const url = "api.zeptomail.eu/"
   const client = new SendMailClient({ url, token: config.apiKey })
 
   try {

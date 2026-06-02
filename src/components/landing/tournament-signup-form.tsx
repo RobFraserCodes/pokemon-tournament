@@ -32,6 +32,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import {
   experienceLevels,
+  pokemonTypes,
   tournamentEntrySchema,
   type TournamentEntryInput,
 } from "@/lib/validation/tournament-entry"
@@ -53,11 +54,16 @@ export function TournamentSignupForm() {
       parentEmail: "",
       parentPhone: "",
       experienceLevel: "New Player",
+      favouritePokemonType: "Fire",
       hasOwnDeck: false,
+      showOnLeaderboard: false,
+      leaderboardNickname: "",
       notes: "",
       consent: false,
     },
   })
+
+  const showOnLeaderboard = form.watch("showOnLeaderboard")
 
   function onSubmit(values: TournamentEntryInput) {
     setServerError(null)
@@ -92,21 +98,19 @@ export function TournamentSignupForm() {
             Register one child at a time. We will use parent details only for
             tournament updates, safety notes, and any schedule changes.
           </p>
-        </div>
-
-        <div className="grid items-center gap-6 lg:grid-cols-[auto_1fr]">
-          <div className="hidden justify-self-center lg:block">
+          <div className="mt-8 hidden lg:block">
             <Image
               alt=""
               aria-hidden="true"
-              className="h-auto w-48 xl:w-56"
+              className="h-auto w-full max-w-sm xl:max-w-md"
               height={512}
               src="/bird.png"
               width={512}
             />
           </div>
+        </div>
 
-          <Card className="rounded-[2rem] border-4 border-slate-950 bg-white shadow-[8px_8px_0_#2563eb]">
+        <Card className="rounded-[2rem] border-4 border-slate-950 bg-white shadow-[8px_8px_0_#2563eb]">
           <CardHeader>
             <CardTitle className="text-2xl font-black text-slate-950">
               Player registration
@@ -275,6 +279,38 @@ export function TournamentSignupForm() {
 
                   <FormField
                     control={form.control}
+                    name="favouritePokemonType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Favourite Pokemon type</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-12 w-full rounded-2xl">
+                              <SelectValue placeholder="Choose a type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {pokemonTypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Used for fun on the public leaderboard if you opt in
+                          below.
+                        </FormDescription>
+                        <FormMessage name="favouritePokemonType" />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="hasOwnDeck"
                     render={({ field }) => (
                       <FormItem className="rounded-2xl border-2 border-pokemon-yellow bg-pokemon-yellow/30 p-4">
@@ -302,6 +338,72 @@ export function TournamentSignupForm() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="rounded-2xl border-2 border-pokemon-blue/30 bg-blue-50 p-4">
+                    <FormField
+                      control={form.control}
+                      name="showOnLeaderboard"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              id="showOnLeaderboard"
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked)
+                                if (!checked) {
+                                  form.setValue("leaderboardNickname", "")
+                                }
+                              }}
+                              className="mt-1"
+                            />
+                            <div>
+                              <FormLabel
+                                htmlFor="showOnLeaderboard"
+                                className="leading-6 text-slate-950"
+                              >
+                                Show my child on the public leaderboard
+                              </FormLabel>
+                              <FormDescription className="mt-2 text-sm leading-6 text-slate-700">
+                                If checked, choose a nickname and favourite Pokemon
+                                type to appear on the leaderboard. Their full name,
+                                age, and contact details are never shown.
+                              </FormDescription>
+                              <FormMessage name="showOnLeaderboard" />
+                            </div>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    {showOnLeaderboard ? (
+                      <FormField
+                        control={form.control}
+                        name="leaderboardNickname"
+                        render={({ field }) => (
+                          <FormItem className="mt-4 border-t border-pokemon-blue/20 pt-4">
+                            <FormLabel htmlFor="leaderboardNickname">
+                              Leaderboard nickname
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                id="leaderboardNickname"
+                                autoComplete="off"
+                                className="h-12 rounded-2xl bg-white"
+                                placeholder="e.g. PikachuMaster"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              This public nickname is shown instead of their real
+                              name.
+                            </FormDescription>
+                            <FormMessage name="leaderboardNickname" />
+                          </FormItem>
+                        )}
+                      />
+                    ) : null}
+                  </div>
 
                   <FormField
                     control={form.control}
@@ -375,7 +477,6 @@ export function TournamentSignupForm() {
             )}
           </CardContent>
         </Card>
-        </div>
       </div>
     </section>
   )

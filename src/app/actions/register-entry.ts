@@ -44,6 +44,11 @@ export async function registerTournamentEntry(
       parent_phone: entry.parentPhone || null,
       experience_level: entry.experienceLevel,
       has_own_deck: entry.hasOwnDeck,
+      favourite_pokemon_type: entry.favouritePokemonType,
+      show_on_leaderboard: entry.showOnLeaderboard,
+      leaderboard_nickname: entry.showOnLeaderboard
+        ? entry.leaderboardNickname
+        : null,
       notes: entry.notes || null,
     })
 
@@ -56,6 +61,7 @@ export async function registerTournamentEntry(
     }
 
     revalidatePath("/")
+    revalidatePath("/leaderboard")
 
     const emailResult = await sendRegistrationConfirmationEmail(entry)
 

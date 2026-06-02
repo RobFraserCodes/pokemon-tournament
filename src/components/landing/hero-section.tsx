@@ -1,5 +1,7 @@
 import { CalendarDays, Clock, MapPin, PoundSterling, Sparkles } from "lucide-react"
 
+import { ShareTournamentButton } from "@/components/landing/share-tournament-button"
+
 const eventDetails = [
   {
     label: "Date",
@@ -26,11 +28,13 @@ const eventDetails = [
 export function HeroSection() {
   return (
     <section
-      className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
+      className="relative bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url(/pokemon-bg.png)" }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-forest/85 via-forest/45 to-forest/15" />
-      <div className="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-white/25" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-forest/85 via-forest/45 to-forest/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-white/25" />
+      </div>
 
       <div className="relative mx-auto grid min-h-[calc(100svh-2rem)] max-w-7xl content-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <div className="rounded-[2rem] border-4 border-slate-950 bg-forest-light/95 p-8 shadow-[10px_10px_0_#0f172a] backdrop-blur-sm sm:p-10">
@@ -45,18 +49,25 @@ export function HeroSection() {
             Join our friendly local Pokemon TCG tournament! Whether you&apos;re a
             brand-new trainer or an experienced battler, everyone is welcome.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col flex-wrap gap-3 sm:flex-row">
             <a
               className="inline-flex h-14 items-center justify-center rounded-full bg-slate-950 px-8 text-base font-black text-white shadow-xl transition-colors hover:bg-forest focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pokemon-yellow/80"
               href="#registration"
             >
               Register Now
             </a>
+            <ShareTournamentButton variant="primary" />
             <a
               className="inline-flex h-14 items-center justify-center rounded-full border-2 border-slate-950/25 bg-white px-8 text-base font-black text-slate-950 transition-colors hover:bg-pokemon-yellow/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pokemon-yellow/80"
               href="#faq"
             >
               Read FAQ
+            </a>
+            <a
+              className="inline-flex h-14 items-center justify-center rounded-full border-2 border-slate-950/25 bg-white px-8 text-base font-black text-slate-950 transition-colors hover:bg-pokemon-yellow/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pokemon-yellow/80"
+              href="/leaderboard"
+            >
+              View Leaderboard
             </a>
           </div>
         </div>

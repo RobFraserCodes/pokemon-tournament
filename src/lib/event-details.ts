@@ -5,3 +5,14 @@ export const tournamentEvent = {
   venue: "Glenurquhart Library",
   entry: "FREE",
 } as const
+
+export function getTournamentShareContent(origin: string) {
+  const url = `${origin.replace(/\/$/, "")}/#registration`
+  const text = `Join the ${tournamentEvent.name} — a friendly FREE Pokemon TCG tournament for young trainers on ${tournamentEvent.date} at ${tournamentEvent.venue}.`
+
+  return {
+    url,
+    text,
+    title: tournamentEvent.name,
+  }
+}
