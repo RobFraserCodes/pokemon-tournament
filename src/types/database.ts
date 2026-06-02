@@ -18,6 +18,7 @@ export type Database = {
           parent_email: string
           parent_phone: string | null
           experience_level: "New Player" | "Casual Player" | "Tournament Player"
+          has_own_deck: boolean
           notes: string | null
           created_at: string
         }
@@ -29,6 +30,7 @@ export type Database = {
           parent_email: string
           parent_phone?: string | null
           experience_level: "New Player" | "Casual Player" | "Tournament Player"
+          has_own_deck?: boolean
           notes?: string | null
           created_at?: string
         }
@@ -40,6 +42,7 @@ export type Database = {
           parent_email?: string
           parent_phone?: string | null
           experience_level?: "New Player" | "Casual Player" | "Tournament Player"
+          has_own_deck?: boolean
           notes?: string | null
           created_at?: string
         }

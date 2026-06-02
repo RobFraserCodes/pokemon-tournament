@@ -5,7 +5,7 @@ import { TournamentSignupForm } from "@/components/landing/tournament-signup-for
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-forest-light">
       <HeroSection />
       <EventInfo />
       <FAQSection />

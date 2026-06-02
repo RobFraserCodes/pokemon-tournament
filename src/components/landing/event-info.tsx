@@ -14,21 +14,21 @@ const infoCards = [
     description:
       "Friendly Swiss-style rounds using standard Pokemon TCG decks. Staff will help players find their tables.",
     icon: Trophy,
-    color: "bg-blue-600",
+    color: "bg-pokemon-blue",
   },
   {
     title: "Age suitability",
     description:
       "Designed for juniors aged 6-15. Beginners, siblings, and first-time players are very welcome.",
     icon: UsersRound,
-    color: "bg-red-500",
+    color: "bg-pokemon-red",
   },
   {
     title: "Prizes",
     description:
       "Small prizes for participation, sportsmanship, and top finishes so every player has something to enjoy.",
     icon: Gift,
-    color: "bg-yellow-400 text-slate-950",
+    color: "bg-pokemon-yellow text-slate-950",
   },
   {
     title: "Bring",
@@ -41,10 +41,10 @@ const infoCards = [
 
 export function EventInfo() {
   return (
-    <section className="bg-white py-16 sm:py-20" id="event-info">
+    <section className="bg-forest-light py-16 sm:py-20" id="event-info">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-sm font-black uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-black uppercase tracking-wide text-pokemon-blue">
             Event information
           </p>
           <h2 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">

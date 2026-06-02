@@ -51,6 +51,7 @@ export function TournamentSignupForm() {
       parentEmail: "",
       parentPhone: "",
       experienceLevel: "New Player",
+      hasOwnDeck: false,
       notes: "",
       consent: false,
     },
@@ -253,6 +254,32 @@ export function TournamentSignupForm() {
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="hasOwnDeck"
+                    render={({ field }) => (
+                      <FormItem className="rounded-2xl border-2 border-pokemon-yellow bg-pokemon-yellow/30 p-4">
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            id="hasOwnDeck"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="mt-1"
+                          />
+                          <div>
+                            <FormLabel
+                              htmlFor="hasOwnDeck"
+                              className="leading-6 text-slate-950"
+                            >
+                              Player has their own 60-card deck
+                            </FormLabel>
+                            <FormMessage name="hasOwnDeck" />
+                          </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}

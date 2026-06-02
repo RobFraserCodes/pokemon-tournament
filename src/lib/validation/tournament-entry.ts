@@ -42,6 +42,7 @@ export const tournamentEntrySchema = z.object({
     .max(1000, "Notes must be 1000 characters or fewer.")
     .optional()
     .or(z.literal("")),
+  hasOwnDeck: z.boolean(),
   consent: z
     .boolean()
     .refine((value) => value, "Confirm you are the parent or guardian."),

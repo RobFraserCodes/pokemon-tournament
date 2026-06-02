@@ -23,10 +23,10 @@ const faqs = [
 
 export function FAQSection() {
   return (
-    <section className="bg-sky-50 py-16 sm:py-20" id="faq">
+    <section className="bg-pokemon-yellow/25 py-16 sm:py-20" id="faq">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <p className="text-sm font-black uppercase tracking-wide text-red-600">
+          <p className="text-sm font-black uppercase tracking-wide text-pokemon-red">
             Questions
           </p>
           <h2 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
@@ -37,7 +37,7 @@ export function FAQSection() {
           {faqs.map((faq) => (
             <article
               key={faq.question}
-              className="rounded-3xl border-2 border-blue-100 bg-white p-6 shadow-sm"
+              className="rounded-3xl border-2 border-pokemon-blue/20 bg-white p-6 shadow-sm"
             >
               <h3 className="text-lg font-black text-slate-950">
                 {faq.question}

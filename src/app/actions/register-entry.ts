@@ -41,6 +41,7 @@ export async function registerTournamentEntry(
       parent_email: entry.parentEmail,
       parent_phone: entry.parentPhone || null,
       experience_level: entry.experienceLevel,
+      has_own_deck: entry.hasOwnDeck,
       notes: entry.notes || null,
     })
 
