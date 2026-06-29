@@ -7,6 +7,12 @@ import {
   pokemonTypes,
 } from "@/lib/validation/tournament-entry"
 
+function isExperienceLevel(
+  value: string
+): value is (typeof experienceLevels)[number] {
+  return (experienceLevels as readonly string[]).includes(value)
+}
+
 export async function addParticipant(formData: FormData) {
   await requireAdmin()
 
@@ -32,7 +38,7 @@ export async function addParticipant(formData: FormData) {
     return { ok: false as const, message: "Enter an age between 5 and 17." }
   }
 
-  if (!(experienceLevels as readonly string[]).includes(experienceLevel)) {
+  if (!isExperienceLevel(experienceLevel)) {
     return { ok: false as const, message: "Choose an experience level." }
   }
 
