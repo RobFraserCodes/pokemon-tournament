@@ -1,6 +1,7 @@
 import {
   CompleteTournamentForm,
   CreateRoundForm,
+  ResetLeaderboardForm,
 } from "@/components/admin/tournament-actions"
 import { RecordMatchForm } from "@/components/admin/record-match-form"
 import { pokemonTypeColors } from "@/lib/pokemon-type-colors"
@@ -43,6 +44,12 @@ export default async function AdminTournamentPage() {
             <CompleteTournamentForm
               disabled={pendingMatches.length > 0 || state.current_round === 0}
             />
+          </div>
+          <div className="mt-4 border-t-2 border-dashed border-slate-200 pt-4">
+            <p className="mb-3 text-xs font-black uppercase tracking-wide text-slate-500">
+              Testing tools
+            </p>
+            <ResetLeaderboardForm />
           </div>
         </div>
 

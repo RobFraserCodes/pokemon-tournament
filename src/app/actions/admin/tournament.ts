@@ -136,6 +136,48 @@ export async function recordMatchResult(formData: FormData) {
   return { ok: true as const, message: "Match result saved." }
 }
 
+export async function resetLeaderboard() {
+  await requireAdmin()
+
+  const state = await getTournamentState()
+  const supabase = getSupabaseAdminClient()
+
+  const { error: matchesError } = await supabase
+    .from("tournament_matches")
+    .delete()
+    .not("id", "is", null)
+
+  if (matchesError) {
+    return {
+      ok: false as const,
+      message: "Could not clear the existing matches.",
+    }
+  }
+
+  const { error: stateError } = await supabase
+    .from("tournament_state")
+    .update({
+      status: "registration",
+      current_round: 0,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", state.id)
+
+  if (stateError) {
+    return {
+      ok: false as const,
+      message: "Matches were cleared but tournament state could not be reset.",
+    }
+  }
+
+  await revalidateTournamentPages()
+
+  return {
+    ok: true as const,
+    message: "Leaderboard reset. Entrants kept; ready for a new round 1.",
+  }
+}
+
 export async function completeTournament() {
   await requireAdmin()
 

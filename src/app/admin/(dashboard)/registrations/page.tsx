@@ -1,3 +1,4 @@
+import { AddParticipantForm } from "@/components/admin/add-participant-form"
 import { getAllRegistrations } from "@/lib/tournament/admin-data"
 
 export const metadata = {
@@ -17,6 +18,8 @@ export default async function AdminRegistrationsPage() {
           {entries.length} {entries.length === 1 ? "entry" : "entries"}
         </h2>
       </div>
+
+      <AddParticipantForm />
 
       <div className="overflow-x-auto rounded-[2rem] border-4 border-slate-950 bg-white p-5 shadow-[8px_8px_0_#2563eb]">
         <table className="w-full min-w-[960px] border-collapse text-left">
