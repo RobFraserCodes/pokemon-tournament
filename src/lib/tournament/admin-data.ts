@@ -1,6 +1,7 @@
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import {
   calculateStandings,
+  getDrawEligibleEntries,
   toPublicLeaderboard,
   type LeaderboardRow,
   type TournamentEntryRow,
@@ -62,7 +63,9 @@ export async function getLeaderboardStandings(): Promise<LeaderboardRow[]> {
     getAllMatches(),
   ])
 
-  return toPublicLeaderboard(calculateStandings(entries, matches))
+  const drawEntries = getDrawEligibleEntries(entries)
+
+  return toPublicLeaderboard(calculateStandings(drawEntries, matches))
 }
 
 export async function getAdminTournamentData() {
@@ -72,11 +75,13 @@ export async function getAdminTournamentData() {
     getTournamentState(),
   ])
 
-  const standings = calculateStandings(entries, matches)
+  const drawEntries = getDrawEligibleEntries(entries)
+  const standings = calculateStandings(drawEntries, matches)
   const pendingMatches = matches.filter((match) => match.status === "pending")
 
   return {
     entries,
+    drawEntries,
     matches,
     state,
     standings,

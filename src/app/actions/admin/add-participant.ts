@@ -66,6 +66,7 @@ export async function addParticipant(formData: FormData) {
     show_on_leaderboard: showOnLeaderboard,
     leaderboard_nickname: showOnLeaderboard ? leaderboardNickname : null,
     notes: "Added on the day by admin.",
+    checked_in: true,
   })
 
   if (error) {

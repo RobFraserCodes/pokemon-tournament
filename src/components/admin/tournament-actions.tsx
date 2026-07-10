@@ -6,6 +6,7 @@ import {
   createNextRound,
   completeTournament,
   resetLeaderboard,
+  voidPendingMatches,
 } from "@/app/actions/admin/tournament"
 import { Button } from "@/components/ui/button"
 
@@ -115,6 +116,36 @@ export function ResetLeaderboardForm() {
           Reset leaderboard (keep entrants)
         </Button>
       )}
+      <ActionMessage
+        message={state?.message ?? null}
+        isError={state?.isError}
+      />
+    </form>
+  )
+}
+
+export function VoidPendingMatchesForm({ disabled }: { disabled: boolean }) {
+  const [state, formAction, isPending] = useActionState(
+    async (_previous: { message: string; isError?: boolean } | null) => {
+      const result = await voidPendingMatches()
+      return {
+        message: result.message,
+        isError: !result.ok,
+      }
+    },
+    null
+  )
+
+  return (
+    <form action={formAction} className="grid gap-3">
+      <Button
+        type="submit"
+        disabled={disabled || isPending}
+        variant="outline"
+        className="h-12 rounded-full border-2 border-pokemon-red text-base font-black text-pokemon-red hover:bg-pokemon-red/10"
+      >
+        {isPending ? "Voiding..." : "Void unfinished matches"}
+      </Button>
       <ActionMessage
         message={state?.message ?? null}
         isError={state?.isError}

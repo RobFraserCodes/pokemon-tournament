@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache"
 
 import { requireAdmin, revalidateTournamentPages } from "@/app/actions/admin/auth"
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
-import { buildNextRoundPairings } from "@/lib/tournament/standings"
+import {
+  buildNextRoundPairings,
+  getDrawEligibleEntries,
+} from "@/lib/tournament/standings"
 import {
   getAllMatches,
   getAllRegistrations,
@@ -29,12 +32,21 @@ export async function createNextRound() {
     }
   }
 
+  const drawEntries = getDrawEligibleEntries(entries)
+
+  if (drawEntries.length < 2) {
+    return {
+      ok: false as const,
+      message: "At least two signed-in players are required to create a draw.",
+    }
+  }
+
   const nextRound = state.current_round + 1
 
   let pairings
 
   try {
-    pairings = buildNextRoundPairings(entries, matches, nextRound)
+    pairings = buildNextRoundPairings(drawEntries, matches, nextRound)
   } catch (error) {
     return {
       ok: false as const,
@@ -175,6 +187,34 @@ export async function resetLeaderboard() {
   return {
     ok: true as const,
     message: "Leaderboard reset. Entrants kept; ready for a new round 1.",
+  }
+}
+
+export async function voidPendingMatches() {
+  await requireAdmin()
+
+  const matches = await getAllMatches()
+  const pendingMatches = matches.filter((match) => match.status === "pending")
+
+  if (pendingMatches.length === 0) {
+    return { ok: false as const, message: "There are no pending matches to void." }
+  }
+
+  const supabase = getSupabaseAdminClient()
+  const { error } = await supabase
+    .from("tournament_matches")
+    .delete()
+    .eq("status", "pending")
+
+  if (error) {
+    return { ok: false as const, message: "Could not void pending matches." }
+  }
+
+  await revalidateTournamentPages()
+
+  return {
+    ok: true as const,
+    message: `${pendingMatches.length} pending ${pendingMatches.length === 1 ? "match" : "matches"} voided.`,
   }
 }
 

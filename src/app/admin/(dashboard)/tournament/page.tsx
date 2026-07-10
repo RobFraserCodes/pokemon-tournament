@@ -2,6 +2,7 @@ import {
   CompleteTournamentForm,
   CreateRoundForm,
   ResetLeaderboardForm,
+  VoidPendingMatchesForm,
 } from "@/components/admin/tournament-actions"
 import { RecordMatchForm } from "@/components/admin/record-match-form"
 import { pokemonTypeColors } from "@/lib/pokemon-type-colors"
@@ -15,12 +16,15 @@ export const metadata = {
 }
 
 export default async function AdminTournamentPage() {
-  const { entries, matches, state, standings, pendingMatches } =
+  const { entries, drawEntries, matches, state, standings, pendingMatches } =
     await getAdminTournamentData()
 
   const rounds = [...new Set(matches.map((match) => match.round_number))].sort(
     (left, right) => left - right
   )
+  const topPoints = standings[0]?.points ?? 0
+  const leaders = standings.filter((standing) => standing.points === topPoints)
+  const hasLeaderTie = leaders.length > 1
 
   return (
     <div className="grid gap-8">
@@ -45,6 +49,15 @@ export default async function AdminTournamentPage() {
               disabled={pendingMatches.length > 0 || state.current_round === 0}
             />
           </div>
+          {pendingMatches.length > 0 ? (
+            <div className="mt-4">
+              <VoidPendingMatchesForm disabled={false} />
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Out of time? Void unfinished matches, then mark the tournament
+                complete. This does not affect completed results.
+              </p>
+            </div>
+          ) : null}
           <div className="mt-4 border-t-2 border-dashed border-slate-200 pt-4">
             <p className="mb-3 text-xs font-black uppercase tracking-wide text-slate-500">
               Testing tools
@@ -63,6 +76,10 @@ export default async function AdminTournamentPage() {
               <dd>{entries.length}</dd>
             </div>
             <div className="flex justify-between gap-4">
+              <dt>Signed in</dt>
+              <dd>{drawEntries.length}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
               <dt>Completed matches</dt>
               <dd>{matches.filter((match) => match.status === "completed").length}</dd>
             </div>
@@ -70,7 +87,7 @@ export default async function AdminTournamentPage() {
               <dt>Pending matches</dt>
               <dd>{pendingMatches.length}</dd>
             </div>
-            {entries.length % 2 === 1 ? (
+            {drawEntries.length % 2 === 1 ? (
               <div className="rounded-xl border-2 border-pokemon-yellow bg-pokemon-yellow/30 px-3 py-2 text-xs leading-5 text-slate-800">
                 Odd player count — the next draw will include one automatic bye.
               </div>
@@ -116,8 +133,15 @@ export default async function AdminTournamentPage() {
 
       <section className="rounded-[2rem] border-4 border-slate-950 bg-white p-6 shadow-[8px_8px_0_#2563eb]">
         <h3 className="text-2xl font-black text-slate-950">Current standings</h3>
+        {hasLeaderTie ? (
+          <p className="mt-3 rounded-2xl border-2 border-pokemon-yellow bg-pokemon-yellow/30 px-4 py-3 text-sm leading-6 text-slate-800">
+            Tie at the top. Rankings use tiebreakers in order: match points,
+            wins, head-to-head when exactly two players are tied, opponent win
+            percentage, then head-to-head for larger groups.
+          </p>
+        ) : null}
         <div className="mt-5 overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-left">
+          <table className="w-full min-w-[920px] border-collapse text-left">
             <thead>
               <tr className="border-b-2 border-slate-200 text-sm font-black uppercase tracking-wide text-slate-600">
                 <th className="px-3 py-3">#</th>
@@ -126,6 +150,12 @@ export default async function AdminTournamentPage() {
                 <th className="px-3 py-3">Type</th>
                 <th className="px-3 py-3">Record</th>
                 <th className="px-3 py-3">Points</th>
+                {hasLeaderTie ? (
+                  <>
+                    <th className="px-3 py-3">H2H</th>
+                    <th className="px-3 py-3">Opp win %</th>
+                  </>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -153,6 +183,20 @@ export default async function AdminTournamentPage() {
                   <td className="px-3 py-3 font-black text-slate-950">
                     {standing.points}
                   </td>
+                  {hasLeaderTie ? (
+                    <>
+                      <td className="px-3 py-3 text-slate-700">
+                        {standing.points === topPoints
+                          ? standing.tiedGroupHeadToHeadPoints
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-3 text-slate-700">
+                        {standing.points === topPoints
+                          ? `${Math.round(standing.opponentWinPercentage * 100)}%`
+                          : "—"}
+                      </td>
+                    </>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

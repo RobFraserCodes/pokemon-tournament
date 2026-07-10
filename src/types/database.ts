@@ -22,6 +22,7 @@ export type Database = {
           favourite_pokemon_type: string
           show_on_leaderboard: boolean
           leaderboard_nickname: string | null
+          checked_in: boolean
           notes: string | null
           created_at: string
         }
@@ -37,6 +38,7 @@ export type Database = {
           favourite_pokemon_type: string
           show_on_leaderboard?: boolean
           leaderboard_nickname?: string | null
+          checked_in?: boolean
           notes?: string | null
           created_at?: string
         }
@@ -52,6 +54,7 @@ export type Database = {
           favourite_pokemon_type?: string
           show_on_leaderboard?: boolean
           leaderboard_nickname?: string | null
+          checked_in?: boolean
           notes?: string | null
           created_at?: string
         }

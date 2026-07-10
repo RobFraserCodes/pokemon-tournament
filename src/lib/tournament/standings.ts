@@ -21,8 +21,13 @@ export type TournamentEntryRow = {
   has_own_deck: boolean
   show_on_leaderboard: boolean
   leaderboard_nickname: string | null
+  checked_in: boolean
   notes: string | null
   created_at: string
+}
+
+export function getDrawEligibleEntries(entries: TournamentEntryRow[]) {
+  return entries.filter((entry) => entry.checked_in)
 }
 
 export type TournamentStateRow = {
@@ -45,6 +50,8 @@ export type StandingRow = {
   byes: number
   points: number
   played: number
+  opponentWinPercentage: number
+  tiedGroupHeadToHeadPoints: number
 }
 
 export type LeaderboardRow = {
@@ -59,15 +66,21 @@ export type LeaderboardRow = {
   played: number
 }
 
-export function calculateStandings(
+type StandingStats = {
+  wins: number
+  losses: number
+  draws: number
+  byes: number
+  points: number
+  played: number
+}
+
+function buildStandingStats(
   entries: TournamentEntryRow[],
   matches: TournamentMatchRow[]
-): StandingRow[] {
+): Map<string, StandingStats> {
   const completedMatches = matches.filter((match) => match.status === "completed")
-  const stats = new Map<
-    string,
-    Omit<StandingRow, "entryId" | "playerName" | "nickname" | "showOnLeaderboard" | "experienceLevel" | "favouritePokemonType">
-  >()
+  const stats = new Map<string, StandingStats>()
 
   for (const entry of entries) {
     stats.set(entry.id, {
@@ -123,8 +136,118 @@ export function calculateStandings(
     }
   }
 
-  return entries
-    .map((entry) => {
+  return stats
+}
+
+function calculateOpponentWinPercentageFromStats(
+  entryId: string,
+  stats: Map<string, StandingStats>,
+  matches: TournamentMatchRow[]
+): number {
+  const opponentIds = matches
+    .filter(
+      (match) =>
+        match.status === "completed" &&
+        match.entry_id_b &&
+        (match.entry_id_a === entryId || match.entry_id_b === entryId)
+    )
+    .map((match) =>
+      match.entry_id_a === entryId ? match.entry_id_b! : match.entry_id_a
+    )
+
+  if (opponentIds.length === 0) {
+    return 0
+  }
+
+  const opponentWinRates = opponentIds.map((opponentId) => {
+    const opponent = stats.get(opponentId)
+    if (!opponent || opponent.played === 0) {
+      return 0
+    }
+
+    return opponent.wins / opponent.played
+  })
+
+  return (
+    opponentWinRates.reduce((total, rate) => total + rate, 0) /
+    opponentWinRates.length
+  )
+}
+
+export function calculateOpponentWinPercentage(
+  entryId: string,
+  entries: TournamentEntryRow[],
+  matches: TournamentMatchRow[]
+): number {
+  const stats = buildStandingStats(entries, matches)
+  return calculateOpponentWinPercentageFromStats(entryId, stats, matches)
+}
+
+function calculateTiedGroupHeadToHeadPoints(
+  entryId: string,
+  tiedEntryIds: string[],
+  matches: TournamentMatchRow[]
+): number {
+  const tiedIds = new Set(tiedEntryIds)
+
+  return matches
+    .filter(
+      (match) =>
+        match.status === "completed" &&
+        match.entry_id_b &&
+        tiedIds.has(match.entry_id_a) &&
+        tiedIds.has(match.entry_id_b)
+    )
+    .reduce((points, match) => {
+      if (match.is_draw) {
+        return entryId === match.entry_id_a || entryId === match.entry_id_b
+          ? points + 1
+          : points
+      }
+
+      return match.winner_entry_id === entryId ? points + 3 : points
+    }, 0)
+}
+
+function compareStandings(
+  left: StandingRow,
+  right: StandingRow,
+  tiedEntryIds: string[] | null
+): number {
+  if (right.points !== left.points) {
+    return right.points - left.points
+  }
+
+  if (right.wins !== left.wins) {
+    return right.wins - left.wins
+  }
+
+  if (tiedEntryIds && tiedEntryIds.length === 2) {
+    if (right.tiedGroupHeadToHeadPoints !== left.tiedGroupHeadToHeadPoints) {
+      return right.tiedGroupHeadToHeadPoints - left.tiedGroupHeadToHeadPoints
+    }
+  }
+
+  if (right.opponentWinPercentage !== left.opponentWinPercentage) {
+    return right.opponentWinPercentage - left.opponentWinPercentage
+  }
+
+  if (tiedEntryIds && tiedEntryIds.length > 2) {
+    if (right.tiedGroupHeadToHeadPoints !== left.tiedGroupHeadToHeadPoints) {
+      return right.tiedGroupHeadToHeadPoints - left.tiedGroupHeadToHeadPoints
+    }
+  }
+
+  return left.playerName.localeCompare(right.playerName)
+}
+
+export function calculateStandings(
+  entries: TournamentEntryRow[],
+  matches: TournamentMatchRow[]
+): StandingRow[] {
+  const stats = buildStandingStats(entries, matches)
+
+  const baseStandings = entries.map((entry) => {
       const record = stats.get(entry.id) ?? {
         wins: 0,
         losses: 0,
@@ -141,20 +264,38 @@ export function calculateStandings(
         showOnLeaderboard: entry.show_on_leaderboard,
         experienceLevel: entry.experience_level,
         favouritePokemonType: entry.favourite_pokemon_type,
+        opponentWinPercentage: calculateOpponentWinPercentageFromStats(
+          entry.id,
+          stats,
+          matches
+        ),
+        tiedGroupHeadToHeadPoints: 0,
         ...record,
       }
     })
-    .sort((left, right) => {
-      if (right.points !== left.points) {
-        return right.points - left.points
-      }
 
-      if (right.wins !== left.wins) {
-        return right.wins - left.wins
-      }
+  const topPoints = Math.max(...baseStandings.map((row) => row.points), 0)
+  const tiedAtTop = baseStandings
+    .filter((row) => row.points === topPoints)
+    .map((row) => row.entryId)
 
-      return left.playerName.localeCompare(right.playerName)
-    })
+  const standings = baseStandings.map((row) => ({
+    ...row,
+    tiedGroupHeadToHeadPoints:
+      tiedAtTop.length > 1 && tiedAtTop.includes(row.entryId)
+        ? calculateTiedGroupHeadToHeadPoints(row.entryId, tiedAtTop, matches)
+        : 0,
+  }))
+
+  return standings.sort((left, right) =>
+    compareStandings(
+      left,
+      right,
+      left.points === topPoints && right.points === topPoints
+        ? tiedAtTop
+        : null
+    )
+  )
 }
 
 export function toPublicLeaderboard(standings: StandingRow[]): LeaderboardRow[] {

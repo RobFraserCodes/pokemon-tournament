@@ -1,5 +1,7 @@
 import { AddParticipantForm } from "@/components/admin/add-participant-form"
+import { CheckInToggle } from "@/components/admin/check-in-toggle"
 import { getAllRegistrations } from "@/lib/tournament/admin-data"
+import { getDrawEligibleEntries } from "@/lib/tournament/standings"
 
 export const metadata = {
   title: "Registrations | Loch Ness Cup Admin",
@@ -7,6 +9,7 @@ export const metadata = {
 
 export default async function AdminRegistrationsPage() {
   const entries = await getAllRegistrations()
+  const signedInCount = getDrawEligibleEntries(entries).length
 
   return (
     <div className="grid gap-6">
@@ -17,14 +20,19 @@ export default async function AdminRegistrationsPage() {
         <h2 className="mt-2 text-3xl font-black text-slate-950">
           {entries.length} {entries.length === 1 ? "entry" : "entries"}
         </h2>
+        <p className="mt-2 text-base font-bold text-slate-700">
+          {signedInCount} signed in · only signed-in players are included in the
+          draw
+        </p>
       </div>
 
       <AddParticipantForm />
 
       <div className="overflow-x-auto rounded-[2rem] border-4 border-slate-950 bg-white p-5 shadow-[8px_8px_0_#2563eb]">
-        <table className="w-full min-w-[960px] border-collapse text-left">
+        <table className="w-full min-w-[1040px] border-collapse text-left">
           <thead>
             <tr className="border-b-2 border-slate-200 text-sm font-black uppercase tracking-wide text-slate-600">
+              <th className="px-3 py-3">Signed in</th>
               <th className="px-3 py-3">Player</th>
               <th className="px-3 py-3">Age</th>
               <th className="px-3 py-3">Parent</th>
@@ -37,7 +45,17 @@ export default async function AdminRegistrationsPage() {
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.id} className="border-b border-slate-100 last:border-b-0">
+              <tr
+                key={entry.id}
+                className={
+                  entry.checked_in
+                    ? "border-b border-slate-100 last:border-b-0"
+                    : "border-b border-slate-100 bg-slate-50/80 last:border-b-0"
+                }
+              >
+                <td className="px-3 py-3">
+                  <CheckInToggle entryId={entry.id} checkedIn={entry.checked_in} />
+                </td>
                 <td className="px-3 py-3 font-black text-slate-950">
                   {entry.player_name}
                 </td>
